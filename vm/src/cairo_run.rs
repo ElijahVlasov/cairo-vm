@@ -60,13 +60,12 @@ impl<'a> Default for CairoRunConfig<'a> {
     }
 }
 
-pub fn cairo_run(
-    program_content: &[u8],
+
+pub fn cairo_run_program(
+    program: &Program,
     cairo_run_config: &CairoRunConfig,
     hint_executor: &mut dyn HintProcessor,
 ) -> Result<(CairoRunner, VirtualMachine), CairoRunError> {
-    let program = Program::from_bytes(program_content, Some(cairo_run_config.entrypoint))?;
-
     let secure_run = cairo_run_config
         .secure_run
         .unwrap_or(!cairo_run_config.proof_mode);
@@ -103,6 +102,17 @@ pub fn cairo_run(
 
     Ok((cairo_runner, vm))
 }
+
+pub fn cairo_run(
+    program_content: &[u8],
+    cairo_run_config: &CairoRunConfig,
+    hint_executor: &mut dyn HintProcessor,
+) -> Result<(CairoRunner, VirtualMachine), CairoRunError> {
+    let program = Program::from_bytes(program_content, Some(cairo_run_config.entrypoint))?;
+
+    cairo_run_program(&program, cairo_run_config, hint_executor)
+}
+
 
 #[cfg(feature = "arbitrary")]
 pub fn cairo_run_fuzzed_program(
